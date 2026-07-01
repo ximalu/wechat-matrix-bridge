@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,16 +9,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:paddingTop="8dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- 状态指示器 -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_status_bar"
+            android:padding="12dp"
+            android:layout_marginBottom="20dp">
 
+            <View
+                android:id="@+id/statusDot"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/shape_dot_red" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="@string/status_stopped"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Matrix 服务器地址 -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -31,11 +52,13 @@
                 android:inputType="textUri" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Access Token -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilToken"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
+            app:passwordToggleEnabled="true"
             android:hint="@string/label_token">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -45,6 +68,7 @@
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- 房间 ID -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -58,6 +82,7 @@
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- 保存按钮 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
@@ -65,12 +90,13 @@
             android:layout_marginBottom="8dp"
             android:text="@string/btn_save" />
 
-        <Button
-            android:id="@+id/btnStop"
+        <!-- 启动/停止切换按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnToggleService"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/TextButton"
-            android:text="@string/btn_stop" />
+            android:layout_marginBottom="8dp"
+            style="@style/ToggleButton" />
 
     </LinearLayout>
 </ScrollView>

@@ -67,5 +67,13 @@ class ForegroundService : Service() {
             val intent = Intent(context, ForegroundService::class.java)
             context.startForegroundService(intent)
         }
+
+        inline fun <reified T : android.app.Service> isServiceRunning(context: Context): Boolean {
+            val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as? android.app.ActivityManager
+                ?: return false
+            return manager.getRunningServices(Integer.MAX_VALUE).any {
+                it.service.className == T::class.java.name
+            }
+        }
     }
 }

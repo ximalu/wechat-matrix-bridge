@@ -18,11 +18,17 @@
 
     <!-- Layout -->
     <string name="label_homeserver">Matrix 服务器地址</string>
-    <string name="hint_homeserver">https://mozilla.org</string>
+    <string name="hint_homeserver">https://mozilla.modular.im</string>
     <string name="label_token">Access Token</string>
     <string name="hint_token">输入 Matrix 登录 token</string>
     <string name="label_room_id">房间 ID</string>
     <string name="hint_room_id">!roomid:server.org</string>
-    <string name="btn_save">保存并启动</string>
+    <string name="btn_save">保存</string>
     <string name="btn_stop">停止服务</string>
+
+    <!-- Status -->
+    <string name="status_stopped">● 已停止</string>
+    <string name="status_running">● 运行中</string>
+    <string name="btn_start_service">启动服务</string>
+    <string name="btn_stop_service">停止服务</string>
 </resources>

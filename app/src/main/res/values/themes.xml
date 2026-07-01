@@ -9,4 +9,9 @@
     <style name="TextButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">#FF5252</item>
     </style>
+
+    <style name="ToggleButton" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">#4CAF50</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 </resources>
