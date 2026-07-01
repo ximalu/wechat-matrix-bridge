@@ -17,10 +17,14 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("wmbridge.keystore")
-            storePassword = "wmbridge123"
-            keyAlias = "wmbridge"
-            keyPassword = "wmbridge123"
+            val keystorePath = System.getenv("WMB_KEYSTORE_PATH") ?: error(
+                "签名配置缺失：请在环境变量或 local.properties 中设置 WMB_KEYSTORE_PATH、" +
+                "WMB_KEYSTORE_PASS、WMB_KEY_PASS"
+            )
+            storeFile = file(keystorePath)
+            storePassword = System.getenv("WMB_KEYSTORE_PASS") ?: error("WMB_KEYSTORE_PASS 未设置")
+            keyAlias = System.getenv("WMB_KEY_ALIAS") ?: "wmbridge"
+            keyPassword = System.getenv("WMB_KEY_PASS") ?: error("WMB_KEY_PASS 未设置")
         }
     }
 

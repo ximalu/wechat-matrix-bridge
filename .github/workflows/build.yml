@@ -1,22 +1,28 @@
-# This workflow uses the Gradle wrapper to build the debug APK.
-# Triggered on push to main and pull requests.
+# Build WMBridge APK
+# - Push to main → debug APK (Actions artifact)
+# - Push tag v*  → release APK (signed, GitHub Release)
 
 name: Build APK
 
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
     branches: [main]
   workflow_dispatch:
+
+env:
+  WMB_KEYSTORE_PASS: ${{ secrets.WMB_KEYSTORE_PASS }}
+  WMB_KEY_ALIAS: ${{ secrets.WMB_KEY_ALIAS }}
+  WMB_KEY_PASS: ${{ secrets.WMB_KEY_PASS }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -24,14 +30,31 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Prepare signing key (release only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "${{ secrets.WMB_KEYSTORE_BASE64 }}" | base64 -d > $HOME/wmbridge.keystore
+          echo "WMB_KEYSTORE_PATH=$HOME/wmbridge.keystore" >> $GITHUB_ENV
 
-      - name: Upload APK
+      - name: Build APK
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            ./gradlew assembleRelease
+          else
+            ./gradlew assembleDebug
+          fi
+
+      - name: Upload APK (artifact)
         uses: actions/upload-artifact@v4
         with:
-          name: wmbridge-v1.0.0-beta1
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: wmbridge-apk
+          path: app/build/outputs/apk/*/WMBridge.*.apk
+
+      - name: Create Release (tag only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/release/WMBridge.*.apk
+          generate_release_notes: true

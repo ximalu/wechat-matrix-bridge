@@ -21,9 +21,15 @@
 - 对应文件：`ForegroundService.kt`、`Config.kt`
 
 **正式签名**
-- 生成正式 keystore：`app/wmbridge.keystore`
-- Debug/Release 均使用同一签名，确保覆盖安装兼容
+- 生成正式 keystore（存放于 `~/.android/wmbridge.keystore`，不提交到仓库）
+- 签名密码通过环境变量注入（WMB_KEYSTORE_PATH、WMB_KEYSTORE_PASS、WMB_KEY_ALIAS、WMB_KEY_PASS）
 - APK 输出文件名改为 `WMBridge.{versionName}.apk`
+
+**安全加固**
+- 仓库设为公开：从 git 移除 keystore 文件，加入 .gitignore
+- build.gradle.kts 签名配置改为读取环境变量，移除硬编码密码
+- 新增 GitHub Actions CI：tag 推送时自动签名发布 Release
+- GitHub Secrets 配置：WMB_KEYSTORE_BASE64 / WMB_KEYSTORE_PASS / WMB_KEY_ALIAS / WMB_KEY_PASS
 
 ### 界面改进
 - 按功能区划分：Matrix 配置 / 转发设置 / 关键词过滤
@@ -41,7 +47,6 @@
 ```
 wechat-matrix-bridge/
 ├── app/
-│   ├── wmbridge.keystore     ← 正式签名密钥（有效期 10000 天）
 │   ├── proguard-rules.pro    ← ProGuard/R8 混淆规则
 │   └── src/
 │       └── main/java/com/ximalu/wmbridge/
