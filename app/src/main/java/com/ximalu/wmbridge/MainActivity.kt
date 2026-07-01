@@ -12,12 +12,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.ximalu.wmbridge.data.Config
 import com.ximalu.wmbridge.databinding.ActivityMainBinding
+import com.ximalu.wmbridge.matrix.MatrixClient
 import com.ximalu.wmbridge.service.ForegroundService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var config: Config
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,11 +48,46 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnSave.setOnClickListener { saveConfig() }
         binding.btnToggleService.setOnClickListener { toggleService() }
+        binding.btnTest.setOnClickListener { sendTest() }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
     }
 
     override fun onResume() {
         super.onResume()
         updateStatus()
+    }
+
+    private fun sendTest() {
+        if (!config.isConfigured) {
+            Toast.makeText(this, "请先填写 Matrix 配置并保存", Toast.LENGTH_SHORT).show()
+            return
+        }
+        binding.btnTest.isEnabled = false
+        binding.btnTest.text = getString(R.string.test_sending)
+        val client = MatrixClient(config)
+        scope.launch {
+            val result = client.sendTestMessage()
+            withContext(Dispatchers.Main) {
+                binding.btnTest.isEnabled = true
+                binding.btnTest.text = getString(R.string.btn_test)
+                result.fold(
+                    onSuccess = {
+                        Toast.makeText(this@MainActivity, R.string.test_sent, Toast.LENGTH_SHORT).show()
+                    },
+                    onFailure = { error ->
+                        Toast.makeText(
+                            this@MainActivity,
+                            "${getString(R.string.test_failed)}${error.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                )
+            }
+        }
     }
 
     private fun loadConfig() {

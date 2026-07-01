@@ -95,8 +95,17 @@
             android:id="@+id/btnToggleService"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="16dp"
             style="@style/ToggleButton" />
+
+        <!-- 测试发送按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:text="@string/btn_test"
+            android:textColor="?attr/colorPrimary" />
 
     </LinearLayout>
 </ScrollView>

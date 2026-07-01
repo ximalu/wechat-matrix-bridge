@@ -33,34 +33,56 @@ class MatrixClient(private val config: Config) {
                 }
 
                 val payload = buildBatchPayload(notifications)
-                val txnId = UUID.randomUUID().toString()
-                val url = "${config.matrixHomeserver}/_matrix/client/v3/rooms/" +
-                        "${config.matrixRoomId}/send/m.room.message/$txnId"
-
-                val body = gson.toJson(payload).toRequestBody(jsonMediaType)
-
-                val request = Request.Builder()
-                    .url(url)
-                    .header("Authorization", "Bearer ${config.matrixToken}")
-                    .header("Content-Type", "application/json")
-                    .put(body)
-                    .build()
-
-                val response = client.newCall(request).execute()
-
-                if (response.isSuccessful) {
-                    Result.success(Unit)
-                } else {
-                    Result.failure(
-                        RuntimeException(
-                            "Matrix send failed: HTTP ${response.code} ${response.body?.string()}"
-                        )
-                    )
-                }
+                doPut(payload)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
+
+    suspend fun sendTestMessage(): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                if (!config.isConfigured) {
+                    return@withContext Result.failure(
+                        IllegalStateException("Matrix not configured")
+                    )
+                }
+                val payload = mapOf(
+                    "msgtype" to "m.text",
+                    "body" to "🧪 WMBridge 测试消息 — 配置正确，服务运行正常"
+                )
+                doPut(payload)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
+    private suspend fun doPut(payload: Map<String, Any>): Result<Unit> {
+        val txnId = UUID.randomUUID().toString()
+        val url = "${config.matrixHomeserver}/_matrix/client/v3/rooms/" +
+                "${config.matrixRoomId}/send/m.room.message/$txnId"
+
+        val body = gson.toJson(payload).toRequestBody(jsonMediaType)
+
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization", "Bearer ${config.matrixToken}")
+            .header("Content-Type", "application/json")
+            .put(body)
+            .build()
+
+        val response = client.newCall(request).execute()
+
+        return if (response.isSuccessful) {
+            Result.success(Unit)
+        } else {
+            Result.failure(
+                RuntimeException(
+                    "Matrix send failed: HTTP ${response.code} ${response.body?.string()}"
+                )
+            )
+        }
+    }
 
     private fun buildBatchPayload(notifications: List<WeChatNotification>): Map<String, Any> {
         val items = notifications.map { it.toMap() }
