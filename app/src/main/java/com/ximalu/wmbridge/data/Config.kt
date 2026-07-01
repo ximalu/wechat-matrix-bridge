@@ -33,6 +33,6 @@ class Config(context: Context) {
         private const val KEY_TOKEN = "matrix_token"
         private const val KEY_ROOM_ID = "matrix_room_id"
         private const val KEY_SERVICE_ENABLED = "service_enabled"
-        private const val DEFAULT_HOMESERVER = "https://mozilla.org"
+        private const val DEFAULT_HOMESERVER = "https://mozilla.modular.im"
     }
 }
