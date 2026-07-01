@@ -3,7 +3,6 @@ package com.ximalu.wmbridge.service
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import androidx.lifecycle.LifecycleService
 import com.ximalu.wmbridge.data.BatchBuffer
 import com.ximalu.wmbridge.data.Config
 import com.ximalu.wmbridge.matrix.MatrixClient
