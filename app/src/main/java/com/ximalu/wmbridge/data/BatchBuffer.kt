@@ -20,5 +20,5 @@ class BatchBuffer {
         batch
     }
 
-    suspend val size: Int get() = mutex.withLock { buffer.size }
+    suspend fun size(): Int = mutex.withLock { buffer.size }
 }
