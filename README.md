@@ -1,6 +1,14 @@
 # WeChat Matrix Bridge (WMBridge)
 
+[![Build APK](https://github.com/ximalu/wechat-matrix-bridge/actions/workflows/build.yml/badge.svg)](https://github.com/ximalu/wechat-matrix-bridge/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/ximalu/wechat-matrix-bridge)](https://github.com/ximalu/wechat-matrix-bridge/releases)
+
 Android 通知监听应用：将微信通知实时转发到 Matrix 房间，由 Hermes AI Agent 管理。
+
+## 下载 APK
+
+👉 [**下载 v1.0.0-beta1**](https://github.com/ximalu/wechat-matrix-bridge/releases/tag/v1.0.0-beta1)
+（Release 页面 → Assets → app-debug.apk）
 
 ## 架构
 
