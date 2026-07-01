@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.WMBridge" parent="Theme.AppCompat.DayNight">
+    <style name="Theme.WMBridge" parent="Theme.MaterialComponents.DayNight">
         <item name="colorPrimary">#0DBD8B</item>
         <item name="colorPrimaryDark">#0A9D73</item>
         <item name="colorAccent">#0DBD8B</item>
     </style>
 
-    <style name="TextButton" parent="Widget.AppCompat.Button.Borderless">
+    <style name="TextButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">#FF5252</item>
     </style>
 </resources>
