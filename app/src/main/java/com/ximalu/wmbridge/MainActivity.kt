@@ -1,6 +1,5 @@
 package com.ximalu.wmbridge
 
-import android.app.ActivityManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -106,7 +105,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun toggleService() {
-        if (isServiceRunning<ForegroundService>()) {
+        if (ForegroundService.isServiceRunning<ForegroundService>(this)) {
             // Stop
             config.serviceEnabled = false
             stopService(Intent(this, ForegroundService::class.java))
@@ -129,7 +128,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateStatus() {
-        val running = isServiceRunning<ForegroundService>()
+        val running = ForegroundService.isServiceRunning<ForegroundService>(this)
         if (running) {
             binding.tvStatus.text = getString(R.string.status_running)
             binding.statusDot.setBackgroundResource(R.drawable.shape_dot_green)
@@ -148,13 +147,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     @Suppress("DEPRECATION")
-    private fun isServiceRunning(): Boolean {
-        val manager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager ?: return false
-        return manager.getRunningServices(Integer.MAX_VALUE).any {
-            it.service.className == ForegroundService::class.java.name
-        }
-    }
-
     private fun isNotificationListenerEnabled(): Boolean {
         val flat = Settings.Secure.getString(
             contentResolver,
