@@ -9,7 +9,10 @@ class Config(context: Context) {
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
     var matrixHomeserver: String
-        get() = prefs.getString(KEY_HOMESERVER, DEFAULT_HOMESERVER) ?: DEFAULT_HOMESERVER
+        get() {
+            val v = prefs.getString(KEY_HOMESERVER, "") ?: ""
+            return v.ifBlank { DEFAULT_HOMESERVER }
+        }
         set(value) = prefs.edit().putString(KEY_HOMESERVER, value).apply()
 
     var matrixToken: String
