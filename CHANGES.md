@@ -42,6 +42,9 @@
 - ProGuard 规则文件（`app/proguard-rules.pro`）
 - Gradle 配置优化：JVM 参数、缓存配置
 
+### Bug 修复
+- **关键词输入栏布局重叠**：`activity_main.xml` tilKeywords 底部 margin 改为 0dp，帮助文字顶部加 2dp margin，输入框设 minLines=2 并 text top gravity，避免多行时与周边元素重叠
+
 ### 项目文件说明
 
 ```

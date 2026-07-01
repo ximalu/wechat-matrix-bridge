@@ -157,7 +157,7 @@
             android:id="@+id/tilKeywords"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="0dp"
             android:hint="@string/label_keywords">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -165,15 +165,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_keywords"
-                android:inputType="text" />
+                android:inputType="text"
+                android:minLines="2"
+                android:gravity="top" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
+            android:id="@+id/tvKeywordHelp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/keyword_help"
             android:textSize="12sp"
             android:textColor="#888888"
+            android:layout_marginTop="2dp"
             android:layout_marginBottom="20dp" />
 
         <!-- 按钮组 -->
