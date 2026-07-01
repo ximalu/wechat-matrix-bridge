@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WMBridge</string>
+    <string name="service_label">微信通知监听</string>
+
+    <!-- Foreground Service -->
+    <string name="notification_title">微信通知桥接运行中</string>
+    <string name="notification_text">监听微信通知并转发到 Matrix</string>
+
+    <!-- NLS Permission Dialog -->
+    <string name="nls_title">需要通知使用权</string>
+    <string name="nls_message">WMBridge 需要读取通知的权限才能监听到微信消息。请在下个页面中找到「WMBridge」并开启权限。</string>
+    <string name="nls_go_settings">去设置</string>
+
+    <!-- Config -->
+    <string name="config_saved">配置已保存，服务已启动</string>
+    <string name="service_stopped">服务已停止</string>
+
+    <!-- Layout -->
+    <string name="label_homeserver">Matrix 服务器地址</string>
+    <string name="hint_homeserver">https://mozilla.org</string>
+    <string name="label_token">Access Token</string>
+    <string name="hint_token">输入 Matrix 登录 token</string>
+    <string name="label_room_id">房间 ID</string>
+    <string name="hint_room_id">!roomid:server.org</string>
+    <string name="btn_save">保存并启动</string>
+    <string name="btn_stop">停止服务</string>
+</resources>
