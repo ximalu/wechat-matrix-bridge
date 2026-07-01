@@ -5,4 +5,8 @@
         <item name="colorPrimaryDark">#0A9D73</item>
         <item name="colorAccent">#0DBD8B</item>
     </style>
+
+    <style name="TextButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">#FF5252</item>
+    </style>
 </resources>

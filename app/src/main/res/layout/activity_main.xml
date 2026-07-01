@@ -29,11 +29,11 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilToken"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:hint="@string/label_token"
-        app:passwordToggleEnabled="true">
+        android:hint="@string/label_token">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etToken"
@@ -64,12 +64,11 @@
         android:layout_marginBottom="8dp"
         android:text="@string/btn_save" />
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/btnStop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:text="@string/btn_stop"
-        android:textColor="@color/design_default_color_error" />
+        style="@style/TextButton"
+        android:text="@string/btn_stop" />
 
 </LinearLayout>
