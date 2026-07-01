@@ -11,13 +11,27 @@ android {
         applicationId = "com.ximalu.wmbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "1.0.0-beta7"
+        versionCode = 8
+        versionName = "1.0.0-beta8"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("wmbridge.keystore")
+            storePassword = "wmbridge123"
+            keyAlias = "wmbridge"
+            keyPassword = "wmbridge123"
+        }
     }
 
     buildTypes {
+        debug {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+        }
         release {
             isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -36,6 +50,13 @@ android {
 
     buildFeatures {
         viewBinding = true
+    }
+
+    applicationVariants.all {
+        outputs.all {
+            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            output.outputFileName = "WMBridge.${versionName}.apk"
+        }
     }
 }
 

@@ -6,6 +6,8 @@
     <!-- Foreground Service -->
     <string name="notification_title">微信通知桥接运行中</string>
     <string name="notification_text">监听微信通知并转发到 Matrix</string>
+    <string name="notification_title_hidden">WMBridge 运行中</string>
+    <string name="notification_text_hidden">点此打开设置</string>
 
     <!-- NLS Permission Dialog -->
     <string name="nls_title">需要通知使用权</string>
@@ -13,25 +15,39 @@
     <string name="nls_go_settings">去设置</string>
 
     <!-- Config -->
-    <string name="config_saved">配置已保存，服务已启动</string>
+    <string name="config_saved">配置已保存</string>
     <string name="service_stopped">服务已停止</string>
+    <string name="service_started">服务已启动</string>
 
-    <!-- Layout -->
+    <!-- Layout: Matrix Config -->
+    <string name="section_matrix">Matrix 配置</string>
     <string name="label_homeserver">Matrix 服务器地址</string>
-    <string name="hint_homeserver">https://mozilla.modular.im</string>
     <string name="label_token">Access Token</string>
-    <string name="hint_token">输入 Matrix 登录 token</string>
     <string name="label_room_id">房间 ID</string>
-    <string name="hint_room_id">!roomid:server.org</string>
+
+    <!-- Layout: Forward Settings -->
+    <string name="section_forward">转发设置</string>
+    <string name="label_frequency">发送频率</string>
+    <string name="label_show_notification">常驻通知栏</string>
+
+    <!-- Layout: Keyword Filter -->
+    <string name="section_keyword">关键词过滤</string>
+    <string name="label_keyword_mode">过滤模式</string>
+    <string name="label_keywords">关键词（逗号分隔）</string>
+    <string name="hint_keywords">工作群,王总,办公室</string>
+    <string name="keyword_help">开启后仅转发/排除包含这些关键词的消息</string>
+
+    <!-- Buttons -->
     <string name="btn_save">保存</string>
-    <string name="btn_stop">停止服务</string>
+    <string name="btn_start_service">启动服务</string>
+    <string name="btn_stop_service">停止服务</string>
+    <string name="btn_test">📤 测试发送</string>
 
     <!-- Status -->
     <string name="status_stopped">● 已停止</string>
     <string name="status_running">● 运行中</string>
-    <string name="btn_start_service">启动服务</string>
-    <string name="btn_stop_service">停止服务</string>
-    <string name="btn_test">📤 测试发送</string>
+
+    <!-- Test -->
     <string name="test_sending">正在发送测试消息…</string>
     <string name="test_sent">测试消息已发送 ✓</string>
     <string name="test_failed">发送失败：</string>

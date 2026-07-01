@@ -20,7 +20,7 @@
             android:gravity="center_vertical"
             android:background="@drawable/bg_status_bar"
             android:padding="12dp"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="16dp">
 
             <View
                 android:id="@+id/statusDot"
@@ -38,7 +38,16 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- Matrix 服务器地址 -->
+        <!-- ===== Matrix 配置 ===== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/section_matrix"
+            android:textSize="13sp"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,7 +61,6 @@
                 android:inputType="textUri" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Access Token -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilToken"
             android:layout_width="match_parent"
@@ -68,11 +76,10 @@
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- 房间 ID -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="16dp"
             android:hint="@string/label_room_id">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -82,7 +89,94 @@
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- 保存按钮 -->
+        <!-- ===== 转发设置 ===== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/section_forward"
+            android:textSize="13sp"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilFrequency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:hint="@string/label_frequency">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etFrequency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="none"
+                android:cursorVisible="false" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swShowNotification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/label_show_notification"
+            android:checked="true" />
+
+        <!-- ===== 关键词过滤 ===== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/section_keyword"
+            android:textSize="13sp"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilKeywordMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:hint="@string/label_keyword_mode">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etKeywordMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="none"
+                android:cursorVisible="false" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilKeywords"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:hint="@string/label_keywords">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etKeywords"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_keywords"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/keyword_help"
+            android:textSize="12sp"
+            android:textColor="#888888"
+            android:layout_marginBottom="20dp" />
+
+        <!-- 按钮组 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
@@ -90,15 +184,13 @@
             android:layout_marginBottom="8dp"
             android:text="@string/btn_save" />
 
-        <!-- 启动/停止切换按钮 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnToggleService"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="12dp"
             style="@style/ToggleButton" />
 
-        <!-- 测试发送按钮 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTest"
             android:layout_width="match_parent"

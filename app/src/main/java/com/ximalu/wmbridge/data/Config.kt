@@ -3,6 +3,21 @@ package com.ximalu.wmbridge.data
 import android.content.Context
 import android.content.SharedPreferences
 
+enum class SendFrequency(val label: String, val millis: Long?) {
+    PER_MESSAGE("每收到一条", null),
+    MIN_3("每3分钟", 180_000L),
+    MIN_5("每5分钟", 300_000L),
+    MIN_10("每10分钟", 600_000L),
+    MIN_20("每20分钟", 1_200_000L),
+    MIN_30("每30分钟", 1_800_000L)
+}
+
+enum class KeywordMode(val label: String) {
+    OFF("关闭"),
+    INCLUDE("仅包含关键词"),
+    EXCLUDE("排除关键词")
+}
+
 class Config(context: Context) {
 
     private val prefs: SharedPreferences =
@@ -27,6 +42,22 @@ class Config(context: Context) {
         get() = prefs.getBoolean(KEY_SERVICE_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_SERVICE_ENABLED, value).apply()
 
+    var sendFrequency: String
+        get() = prefs.getString(KEY_FREQ, SendFrequency.MIN_10.name) ?: SendFrequency.MIN_10.name
+        set(value) = prefs.edit().putString(KEY_FREQ, value).apply()
+
+    var showPersistentNotification: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_NOTIF, true)
+        set(value) = prefs.edit().putBoolean(KEY_SHOW_NOTIF, value).apply()
+
+    var keywordMode: String
+        get() = prefs.getString(KEY_KW_MODE, KeywordMode.OFF.name) ?: KeywordMode.OFF.name
+        set(value) = prefs.edit().putString(KEY_KW_MODE, value).apply()
+
+    var keywords: String
+        get() = prefs.getString(KEY_KW_LIST, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_KW_LIST, value).apply()
+
     val isConfigured: Boolean
         get() = matrixToken.isNotBlank() && matrixRoomId.isNotBlank()
 
@@ -36,6 +67,10 @@ class Config(context: Context) {
         private const val KEY_TOKEN = "matrix_token"
         private const val KEY_ROOM_ID = "matrix_room_id"
         private const val KEY_SERVICE_ENABLED = "service_enabled"
+        private const val KEY_FREQ = "send_frequency"
+        private const val KEY_SHOW_NOTIF = "show_persistent_notification"
+        private const val KEY_KW_MODE = "keyword_mode"
+        private const val KEY_KW_LIST = "keywords"
         private const val DEFAULT_HOMESERVER = "https://mozilla.modular.im"
     }
 }

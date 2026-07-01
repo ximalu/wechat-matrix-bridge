@@ -1,7 +1,6 @@
 package com.ximalu.wmbridge
 
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -10,6 +9,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.ximalu.wmbridge.data.Config
+import com.ximalu.wmbridge.data.KeywordMode
+import com.ximalu.wmbridge.data.SendFrequency
 import com.ximalu.wmbridge.databinding.ActivityMainBinding
 import com.ximalu.wmbridge.matrix.MatrixClient
 import com.ximalu.wmbridge.service.ForegroundService
@@ -32,16 +33,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         config = Config(this)
-
-        // Hide system action bar — we have our own layout
         supportActionBar?.hide()
 
-        // Check NLS permission on first launch
         if (!isNotificationListenerEnabled()) {
             showEnableNlsDialog()
         }
 
-        // Load saved values
+        // Setup dropdown pickers
+        setupFrequencyPicker()
+        setupKeywordModePicker()
         loadConfig()
         updateStatus()
 
@@ -59,6 +59,117 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         updateStatus()
     }
+
+    // ── Frequency dropdown ──
+
+    private fun setupFrequencyPicker() {
+        val items = SendFrequency.entries.map { it.label }.toTypedArray()
+        binding.etFrequency.setOnClickListener {
+            val current = try {
+                SendFrequency.valueOf(config.sendFrequency).ordinal
+            } catch (_: Exception) { 3 } // default MIN_10
+            showPickerDialog(
+                items, current,
+                "发送频率"
+            ) { pos ->
+                val freq = SendFrequency.entries[pos]
+                config.sendFrequency = freq.name
+                binding.etFrequency.setText(freq.label)
+            }
+        }
+    }
+
+    // ── Keyword mode dropdown ──
+
+    private fun setupKeywordModePicker() {
+        val items = KeywordMode.entries.map { it.label }.toTypedArray()
+        binding.etKeywordMode.setOnClickListener {
+            val current = try {
+                KeywordMode.valueOf(config.keywordMode).ordinal
+            } catch (_: Exception) { 0 }
+            showPickerDialog(
+                items, current,
+                "过滤模式"
+            ) { pos ->
+                val mode = KeywordMode.entries[pos]
+                config.keywordMode = mode.name
+                binding.etKeywordMode.setText(mode.label)
+            }
+        }
+    }
+
+    private fun showPickerDialog(
+        items: Array<String>, selected: Int, title: String,
+        onSelect: (Int) -> Unit
+    ) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setSingleChoiceItems(items, selected) { d, pos ->
+                onSelect(pos)
+                d.dismiss()
+            }
+            .setNegativeButton("取消", null)
+            .show()
+    }
+
+    // ── Load / Save ──
+
+    private fun loadConfig() {
+        binding.etHomeserver.setText(config.matrixHomeserver)
+        if (config.matrixToken.isNotEmpty()) {
+            binding.etToken.setText(config.matrixToken)
+        }
+        binding.etRoomId.setText(config.matrixRoomId)
+
+        // Frequency
+        val freq = try {
+            SendFrequency.valueOf(config.sendFrequency)
+        } catch (_: Exception) { SendFrequency.MIN_10 }
+        binding.etFrequency.setText(freq.label)
+
+        // Notification toggle
+        binding.swShowNotification.isChecked = config.showPersistentNotification
+
+        // Keywords
+        val kwMode = try {
+            KeywordMode.valueOf(config.keywordMode)
+        } catch (_: Exception) { KeywordMode.OFF }
+        binding.etKeywordMode.setText(kwMode.label)
+        binding.etKeywords.setText(config.keywords)
+    }
+
+    private fun saveConfig() {
+        config.matrixHomeserver = binding.etHomeserver.text.toString().trim()
+        config.matrixToken = binding.etToken.text.toString().trim()
+        config.matrixRoomId = binding.etRoomId.text.toString().trim()
+        config.showPersistentNotification = binding.swShowNotification.isChecked
+        config.keywords = binding.etKeywords.text.toString().trim()
+        Toast.makeText(this, R.string.config_saved, Toast.LENGTH_SHORT).show()
+    }
+
+    // ── Service toggle ──
+
+    private fun toggleService() {
+        if (ForegroundService.isServiceRunning<ForegroundService>(this)) {
+            config.serviceEnabled = false
+            stopService(Intent(this, ForegroundService::class.java))
+            Toast.makeText(this, R.string.service_stopped, Toast.LENGTH_SHORT).show()
+        } else {
+            if (!config.isConfigured) {
+                saveConfig()
+            }
+            if (!config.isConfigured) {
+                Toast.makeText(this, "请先填写 Matrix 配置", Toast.LENGTH_SHORT).show()
+                return
+            }
+            config.serviceEnabled = true
+            ForegroundService.start(this)
+            Toast.makeText(this, R.string.service_started, Toast.LENGTH_SHORT).show()
+        }
+        updateStatus()
+    }
+
+    // ── Test send ──
 
     private fun sendTest() {
         if (!config.isConfigured) {
@@ -89,43 +200,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadConfig() {
-        binding.etHomeserver.setText(config.matrixHomeserver)
-        if (config.matrixToken.isNotEmpty()) {
-            binding.etToken.setText(config.matrixToken)
-        }
-        binding.etRoomId.setText(config.matrixRoomId)
-    }
-
-    private fun saveConfig() {
-        config.matrixHomeserver = binding.etHomeserver.text.toString().trim()
-        config.matrixToken = binding.etToken.text.toString().trim()
-        config.matrixRoomId = binding.etRoomId.text.toString().trim()
-        Toast.makeText(this, R.string.config_saved, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun toggleService() {
-        if (ForegroundService.isServiceRunning<ForegroundService>(this)) {
-            // Stop
-            config.serviceEnabled = false
-            stopService(Intent(this, ForegroundService::class.java))
-            Toast.makeText(this, R.string.service_stopped, Toast.LENGTH_SHORT).show()
-        } else {
-            // Start
-            if (!config.isConfigured) {
-                // Save first
-                saveConfig()
-            }
-            if (!config.isConfigured) {
-                Toast.makeText(this, "请先填写 Matrix 配置", Toast.LENGTH_SHORT).show()
-                return
-            }
-            config.serviceEnabled = true
-            ForegroundService.start(this)
-            Toast.makeText(this, "服务已启动", Toast.LENGTH_SHORT).show()
-        }
-        updateStatus()
-    }
+    // ── Status ──
 
     private fun updateStatus() {
         val running = ForegroundService.isServiceRunning<ForegroundService>(this)
@@ -146,20 +221,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // ── NLS check ──
+
     @Suppress("DEPRECATION")
     private fun isNotificationListenerEnabled(): Boolean {
         val flat = Settings.Secure.getString(
             contentResolver,
             "enabled_notification_listeners"
         ) ?: return false
-        val names = flat.split(":")
-        for (name in names) {
+        return flat.split(":").any { name ->
             val cn = ComponentName.unflattenFromString(name)
-            if (cn != null && packageName == cn.packageName) {
-                return true
-            }
+            cn != null && packageName == cn.packageName
         }
-        return false
     }
 
     private fun showEnableNlsDialog() {
