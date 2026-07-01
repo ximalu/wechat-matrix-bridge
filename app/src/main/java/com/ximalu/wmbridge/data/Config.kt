@@ -21,7 +21,7 @@ enum class KeywordMode(val label: String) {
 class Config(context: Context) {
 
     private val prefs: SharedPreferences =
-        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        context.getSharedPreferences(PREF_NAME, Context.MODE_MULTI_PROCESS)
 
     var matrixHomeserver: String
         get() {
@@ -58,6 +58,25 @@ class Config(context: Context) {
         get() = prefs.getString(KEY_KW_LIST, "") ?: ""
         set(value) = prefs.edit().putString(KEY_KW_LIST, value).apply()
 
+    // ── Keep-alive settings ──
+
+    /** 通知栏前台保活 */
+    var keepAliveNotification: Boolean
+        get() = prefs.getBoolean(KEY_KA_NOTIF, true)
+        set(value) = prefs.edit().putBoolean(KEY_KA_NOTIF, value).apply()
+
+    /** 不可见悬浮窗保活 */
+    var keepAliveOverlay: Boolean
+        get() = prefs.getBoolean(KEY_KA_OVERLAY, false)
+        set(value) = prefs.edit().putBoolean(KEY_KA_OVERLAY, value).apply()
+
+    // ── Device admin status ──
+
+    /** 设备管理员是否已激活（只读标记） */
+    var deviceAdminActivated: Boolean
+        get() = prefs.getBoolean(KEY_DEVICE_ADMIN, false)
+        set(value) = prefs.edit().putBoolean(KEY_DEVICE_ADMIN, value).apply()
+
     val isConfigured: Boolean
         get() = matrixToken.isNotBlank() && matrixRoomId.isNotBlank()
 
@@ -71,6 +90,9 @@ class Config(context: Context) {
         private const val KEY_SHOW_NOTIF = "show_persistent_notification"
         private const val KEY_KW_MODE = "keyword_mode"
         private const val KEY_KW_LIST = "keywords"
+        private const val KEY_KA_NOTIF = "keep_alive_notification"
+        private const val KEY_KA_OVERLAY = "keep_alive_overlay"
+        private const val KEY_DEVICE_ADMIN = "device_admin_activated"
         private const val DEFAULT_HOMESERVER = "https://mozilla.modular.im"
     }
 }

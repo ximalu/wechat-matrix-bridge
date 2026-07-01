@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="保活设置"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swKeepAliveNotification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="通知栏前台保活" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swKeepAliveOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="不可见悬浮窗保活" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

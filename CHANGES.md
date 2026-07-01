@@ -45,6 +45,47 @@
 ### Bug 修复
 - **关键词输入栏布局重叠**：`activity_main.xml` tilKeywords 底部 margin 改为 0dp，帮助文字顶部加 2dp margin，输入框设 minLines=2 并 text top gravity，避免多行时与周边元素重叠
 
+### 保活与权限增强（v1.0.0-beta9）
+参考 TapClick (LGH1996/TapClick) 设计，新增以下保活和权限机制：
+
+**新增文件**
+- `AuthorizationActivity.kt` — 一站式权限引导页，500ms 轮询刷新状态
+- `service/MyTileService.kt` — Quick Settings 快捷磁贴（运行中/已停止状态）
+- `service/MyDeviceAdminReceiver.kt` — 设备管理员（防卸载门槛）
+- `service/ScreenStateReceiver.kt` — SCREEN_OFF/SCREEN_ON 广播监听保活
+- `service/BridgeProvider.kt` — ContentProvider IPC 跨进程通信
+- `res/layout/activity_authorization.xml` — 权限引导页布局
+- `res/layout/item_permission.xml` — 权限卡片模板
+- `res/layout/item_keepalive.xml` — 保活开关卡片
+- `res/xml/device_admin.xml` — 设备管理员策略声明
+- `res/drawable/ic_check_green.xml` — 权限已开启图标
+- `res/drawable/ic_close_red.xml` — 权限未开启图标
+- `res/drawable/ic_tile.xml` — 快捷磁贴图标
+- `BootReceiver.kt` — 开机自启（之前声明了但文件缺失，本次补上）
+
+**修改文件**
+- `AndroidManifest.xml` — 新增所有组件声明；Service 和 NLS 改为独立进程 `:bridge`
+- `ForegroundService.kt` — 新增 `TYPE_ACCESSIBILITY_OVERLAY` 不可见悬浮窗保活；注册 SCREEN_OFF 广播接收器；新增 `ACTION_TOGGLE_OVERLAY` 动作
+- `Config.kt` — 新增 keepAliveNotification、keepAliveOverlay、deviceAdminActivated 配置项；SharedPreferences 改为 `MODE_MULTI_PROCESS`
+- `MainActivity.kt` — 新增"🔒 权限与保活设置"按钮 → 跳转 AuthorizationActivity
+- `strings.xml` — 新增权限/保活相关字符串
+- `activity_main.xml` — 新增 btnPermissions 按钮
+
+**6 种保活手段**
+1. 前台服务 + 持续通知 ✅（已有，增强）
+2. TYPE_ACCESSIBILITY_OVERLAY 不可见悬浮窗 ✅（新增）
+3. 独立进程 `:bridge` ✅（新增，服务与 UI 进程隔离）
+4. SCREEN_OFF 广播监听 ✅（新增）
+5. 快捷磁贴快速入口 ✅（新增）
+6. 设备管理员防卸载 ✅（新增）
+
+**权限引导 5 项**
+- 通知使用权
+- 通知权限（Android 13+）
+- 忽略电池优化
+- 设备管理员
+- 悬浮窗保活权限
+
 ### 项目文件说明
 
 ```

@@ -46,6 +46,9 @@ class MainActivity : AppCompatActivity() {
         updateStatus()
 
         binding.btnSave.setOnClickListener { saveConfig() }
+        binding.btnPermissions.setOnClickListener {
+            startActivity(Intent(this, AuthorizationActivity::class.java))
+        }
         binding.btnToggleService.setOnClickListener { toggleService() }
         binding.btnTest.setOnClickListener { sendTest() }
     }

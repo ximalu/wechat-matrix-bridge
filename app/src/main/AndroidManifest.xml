@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
     <application
         android:name=".WMBridgeApp"
@@ -15,6 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WMBridge">
 
+        <!-- Main UI -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -25,21 +30,38 @@
             </intent-filter>
         </activity>
 
+        <!-- Permissions guide -->
+        <activity
+            android:name=".AuthorizationActivity"
+            android:exported="false"
+            android:label="权限设置" />
+
+        <!-- Foreground service (bridge process) -->
         <service
             android:name=".service.ForegroundService"
             android:exported="false"
-            android:foregroundServiceType="dataSync" />
+            android:foregroundServiceType="dataSync"
+            android:process=":bridge" />
 
+        <!-- Notification listener (bridge process) -->
         <service
             android:name=".service.NotificationListener"
             android:exported="true"
             android:label="@string/service_label"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:process=":bridge">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
 
+        <!-- Screen state receiver (bridge process) -->
+        <receiver
+            android:name=".service.ScreenStateReceiver"
+            android:exported="false"
+            android:process=":bridge" />
+
+        <!-- Boot receiver -->
         <receiver
             android:name=".BootReceiver"
             android:exported="true">
@@ -47,6 +69,38 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <!-- Device admin -->
+        <receiver
+            android:name=".service.MyDeviceAdminReceiver"
+            android:exported="true"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+            android:process=":bridge">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Quick Settings tile -->
+        <service
+            android:name=".service.MyTileService"
+            android:exported="true"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <!-- ContentProvider for IPC -->
+        <provider
+            android:name=".service.BridgeProvider"
+            android:authorities="com.ximalu.wmbridge.bridge"
+            android:exported="false"
+            android:process=":bridge" />
 
     </application>
 </manifest>

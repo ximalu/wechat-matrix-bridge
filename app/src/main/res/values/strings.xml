@@ -37,6 +37,10 @@
     <string name="hint_keywords">工作群,王总,办公室</string>
     <string name="keyword_help">开启后仅转发/排除包含这些关键词的消息</string>
 
+    <!-- Layout: Keep-alive & Permission -->
+    <string name="section_permission">保活与权限</string>
+    <string name="btn_permission">🔒 权限与保活设置</string>
+
     <!-- Buttons -->
     <string name="btn_save">保存</string>
     <string name="btn_start_service">启动服务</string>
