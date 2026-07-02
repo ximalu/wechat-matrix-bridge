@@ -28,7 +28,7 @@
 ### Bug 修复
 - 消息发送失败后会在日志标记 FAILED，方便用户通过「消息记录」Tab 排查漏发问题
 
-## v1.0.0-beta10
+## v1.0.0-beta16
 
 ### Bug 修复
 - **AuthorizationActivity 启动崩溃**：`item_permission.xml` 根元素是 CardView，但 `setupPermissionItems()` 中强转成了 `LinearLayout`，导致 `ClassCastException`。改为 `as View` 泛型转型，移除 `LinearLayout` 导入
@@ -38,6 +38,8 @@
 - **[根因] Android 15 edge-to-edge 未处理**：`targetSdk=35` 强制 edge-to-edge 渲染，但 `activity_main.xml` 和 `activity_authorization.xml` 缺少 `fitsSystemWindows="true"`，导致内容被状态栏和导航栏压缩，Layout 内所有 margin 实际可用空间远小于预期。添加 `fitsSystemWindows` 修复
 - **关键词输入框高度计算偏差**：`Android:minLines="2"` 设在 `TextInputEditText` 上会导致 `TextInputLayout` 的 filled box 高度计算偏差，视觉上侵占下方帮助文字空间。去掉 `minLines`，改为默认单行 + `gravity="top"`，同时增大 `marginBottom` 8dp→12dp
 - **[根治] 关键词帮助文字改用 Material 内置 helperText**：之前用独立 `TextView`（`tvKeywordHelp`）放在 TextInputLayout 下方，间距靠手动 margin 控制，不同设备上视觉表现不一致。按 Material Components 官方做法，改用 `app:helperText` + `app:helperTextEnabled` 将帮助文字置于 TextInputLayout 内部，由库自身控制布局和间距，彻底消除重叠可能
+- **版本号未跟随迭代更新**：`build.gradle.kts` 中 `versionName` 一直写死为 `1.0.0-beta9`，`versionCode` 写死为 `9`，导致 beta10~15 安装后始终显示 beta9。现改为 `1.0.0-beta16 / versionCode=15`
+- **关键词 TextInputLayout 添加显式 filled 样式**：按 Material Components Catalog 样例，添加 `style="?attr/textInputFilledStyle"` 确保 helper text 区域在不同设备上正确计算渲染
 
 ## v1.0.0-beta8
 
