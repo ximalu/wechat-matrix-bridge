@@ -154,19 +154,13 @@
                 android:cursorVisible="false" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_keywords"
-            android:textSize="13sp"
-            android:textColor="#333333"
-            android:layout_marginBottom="4dp" />
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilKeywords"
+            style="?attr/textInputFilledStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="12dp"
+            android:hint="@string/label_keywords"
             app:helperText="@string/keyword_help"
             app:helperTextEnabled="true">
 
@@ -175,8 +169,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_keywords"
-                android:inputType="text"
-                android:gravity="top" />
+                android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- 按钮组 -->

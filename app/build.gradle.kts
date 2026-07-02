@@ -11,8 +11,8 @@ android {
         applicationId = "com.ximalu.wmbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 16
-        versionName = "1.0.0-beta17"
+        versionCode = 17
+        versionName = "1.0.0-beta18"
     }
 
     signingConfigs {
