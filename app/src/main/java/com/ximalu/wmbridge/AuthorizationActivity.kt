@@ -12,7 +12,7 @@ import android.provider.Settings
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.LinearLayout
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.ximalu.wmbridge.data.Config
@@ -37,7 +37,7 @@ class AuthorizationActivity : AppCompatActivity(), Runnable {
         val btnText: String,
         val checkAction: () -> Boolean,
         val grantAction: () -> Unit,
-        var view: LinearLayout? = null
+        var view: View? = null
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,7 +154,7 @@ class AuthorizationActivity : AppCompatActivity(), Runnable {
         val container = binding.permissionContainer
         for (item in items) {
             val view = LayoutInflater.from(this)
-                .inflate(R.layout.item_permission, container, false) as LinearLayout
+                .inflate(R.layout.item_permission, container, false) as View
             view.findViewById<TextView>(R.id.permission_title).text = item.title
             view.findViewById<TextView>(R.id.permission_desc).text = item.desc
             view.findViewById<Button>(R.id.btnGrant).text = item.btnText

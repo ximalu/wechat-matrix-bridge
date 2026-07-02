@@ -28,6 +28,11 @@
 ### Bug 修复
 - 消息发送失败后会在日志标记 FAILED，方便用户通过「消息记录」Tab 排查漏发问题
 
+## v1.0.0-beta10
+
+### Bug 修复
+- **AuthorizationActivity 启动崩溃**：`item_permission.xml` 根元素是 CardView，但 `setupPermissionItems()` 中强转成了 `LinearLayout`，导致 `ClassCastException`。改为 `as View` 泛型转型，移除 `LinearLayout` 导入
+
 ## v1.0.0-beta8
 
 ### 新增功能
