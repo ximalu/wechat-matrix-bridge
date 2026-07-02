@@ -1,5 +1,14 @@
 # WMBridge 修改记录
 
+## v1.1.0
+
+### Bug 修复
+
+- **AuthorizationActivity 启动崩溃**：`item_permission.xml` 根元素是 CardView，但 `setupPermissionItems()` 中强转成 `LinearLayout`，导致 `ClassCastException`
+- **消息记录页与权限页重叠状态栏**：`targetSdk=35` 强制 Android 15 edge-to-edge 渲染，缺少 `fitsSystemWindows="true"` 导致内容被状态栏和导航栏覆盖
+- **关键词输入框浮动标签与文字重叠**：Material Components TextInputLayout 在 FilledBox 模式下同时启用 FloatingLabel 和 `helperTextEnabled` 时，标签 Y 坐标计算偏差。改用静态标签 `TextView` 替代浮动标签
+- **关键词帮助文字布局**：独立 `TextView` 改为 Material 内置 `app:helperText`
+
 ## v1.0.0-beta9
 
 ### 新增功能
