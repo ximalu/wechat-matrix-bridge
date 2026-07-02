@@ -35,6 +35,7 @@
 - **消息记录页重叠状态栏**：根布局缺少 `fitsSystemWindows="true"`，顶部操作栏与系统状态栏重叠
 - **关键词输入栏间距过小**：`tilKeywords` 的 `marginBottom=0dp` 与帮助文字的 `marginTop=2dp` 间距太小，多行时重叠。改为 `marginBottom=8dp`
 - **关键词帮助文字与按钮组间距不足**：`tvKeywordHelp` 的 `marginBottom` 20dp→24dp，`btnTest` 添加 `marginBottom=8dp`
+- **[根因] Android 15 edge-to-edge 未处理**：`targetSdk=35` 强制 edge-to-edge 渲染，但 `activity_main.xml` 和 `activity_authorization.xml` 缺少 `fitsSystemWindows="true"`，导致内容被状态栏和导航栏压缩，Layout 内所有 margin 实际可用空间远小于预期。添加 `fitsSystemWindows` 修复
 
 ## v1.0.0-beta8
 
