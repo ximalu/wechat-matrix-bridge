@@ -1,5 +1,33 @@
 # WMBridge 修改记录
 
+## v1.0.0-beta9
+
+### 新增功能
+
+**消息记录 Tab（消息已发/未发状态查看）**
+- 新增持久化消息历史存储 `MessageHistory`，跨进程同步（`:bridge` 进程写入，主进程读取）
+- 新增 `MessageEntry` 数据模型，每条记录含 sender / content / groupName / timestamp / 状态（PENDING / SENT / FAILED）
+- 新增 `MessageHistoryActivity`，以 RecyclerView 展示所有已收集消息，每条显示发送者、内容、群名、时间、状态标签
+- 状态圆点：🟢 已发 / 🔴 待发（未发）/ 🔴 失败
+- 顶部摘要栏：显示总数、已发数、待发数、失败数
+- 支持清空历史记录
+- 新增入口按钮「📋 消息记录」在设置页按钮组中
+- 对应文件：
+  - `model/MessageEntry.kt` — 消息记录数据模型（新增）
+  - `data/MessageHistory.kt` — 持久化存储（新增）
+  - `res/layout/activity_message_history.xml` — 历史页布局（新增）
+  - `res/layout/item_message_entry.xml` — 列表项布局（新增）
+  - `MessageHistoryActivity.kt` — 历史页 Activity（新增）
+  - `MainActivity.kt` — 新增入口按钮
+  - `activity_main.xml` — 新增 btnHistory 按钮
+  - `NotificationListener.kt` — 收集时记录 PENDING，发送成功记为 SENT，失败记为 FAILED
+  - `AndroidManifest.xml` — 注册 MessageHistoryActivity
+  - `colors.xml` — 新增状态标签配色
+  - `strings.xml` — 新增 btn_history 字符串
+
+### Bug 修复
+- 消息发送失败后会在日志标记 FAILED，方便用户通过「消息记录」Tab 排查漏发问题
+
 ## v1.0.0-beta8
 
 ### 新增功能

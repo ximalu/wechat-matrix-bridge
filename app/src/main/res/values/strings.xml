@@ -46,6 +46,7 @@
     <string name="btn_start_service">启动服务</string>
     <string name="btn_stop_service">停止服务</string>
     <string name="btn_test">📤 测试发送</string>
+    <string name="btn_history">📋 消息记录</string>
 
     <!-- Status -->
     <string name="status_stopped">● 已停止</string>

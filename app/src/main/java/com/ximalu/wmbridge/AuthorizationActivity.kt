@@ -166,17 +166,18 @@ class AuthorizationActivity : AppCompatActivity(), Runnable {
 
     @Suppress("DEPRECATION")
     private fun setupKeepAliveSwitches() {
-        binding.swKeepAliveNotification.isChecked = config.keepAliveNotification
-        binding.swKeepAliveOverlay.isChecked = config.keepAliveOverlay
+        val keepalive = binding.keepaliveSection
+        keepalive.swKeepAliveNotification.isChecked = config.keepAliveNotification
+        keepalive.swKeepAliveOverlay.isChecked = config.keepAliveOverlay
 
-        binding.swKeepAliveNotification.setOnCheckedChangeListener { _, isChecked ->
+        keepalive.swKeepAliveNotification.setOnCheckedChangeListener { _, isChecked ->
             config.keepAliveNotification = isChecked
             if (isChecked && ForegroundService.isServiceRunning<ForegroundService>(this)) {
                 ForegroundService.restartNotification(this)
             }
         }
 
-        binding.swKeepAliveOverlay.setOnCheckedChangeListener { _, isChecked ->
+        keepalive.swKeepAliveOverlay.setOnCheckedChangeListener { _, isChecked ->
             config.keepAliveOverlay = isChecked
             if (ForegroundService.isServiceRunning<ForegroundService>(this)) {
                 val intent = Intent(this, ForegroundService::class.java).apply {

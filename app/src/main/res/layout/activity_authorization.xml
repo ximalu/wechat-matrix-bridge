@@ -42,7 +42,9 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <include layout="@layout/item_keepalive" />
+        <include
+            android:id="@+id/keepaliveSection"
+            layout="@layout/item_keepalive" />
 
     </LinearLayout>
 </ScrollView>

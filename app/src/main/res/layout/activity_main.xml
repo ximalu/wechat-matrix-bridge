@@ -189,6 +189,15 @@
             android:text="@string/btn_save" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:text="@string/btn_history"
+            android:textColor="?attr/colorPrimary" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPermissions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

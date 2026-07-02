@@ -2,4 +2,12 @@
 <resources>
     <color name="status_start_bg">#4CAF50</color>
     <color name="status_stop_bg">#F44336</color>
+
+    <!-- MessageHistory status colors -->
+    <color name="status_sent_text">#2E7D32</color>
+    <color name="status_sent_bg">#E8F5E9</color>
+    <color name="status_pending_text">#E65100</color>
+    <color name="status_pending_bg">#FFF3E0</color>
+    <color name="status_failed_text">#C62828</color>
+    <color name="status_failed_bg">#FFEBEE</color>
 </resources>

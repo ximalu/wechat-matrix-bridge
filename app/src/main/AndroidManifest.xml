@@ -36,6 +36,12 @@
             android:exported="false"
             android:label="权限设置" />
 
+        <!-- Message history -->
+        <activity
+            android:name=".MessageHistoryActivity"
+            android:exported="false"
+            android:label="消息记录" />
+
         <!-- Foreground service (bridge process) -->
         <service
             android:name=".service.ForegroundService"

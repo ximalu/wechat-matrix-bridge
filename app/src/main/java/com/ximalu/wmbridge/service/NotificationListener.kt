@@ -6,8 +6,10 @@ import android.util.Log
 import com.ximalu.wmbridge.data.BatchBuffer
 import com.ximalu.wmbridge.data.Config
 import com.ximalu.wmbridge.data.KeywordMode
+import com.ximalu.wmbridge.data.MessageHistory
 import com.ximalu.wmbridge.data.SendFrequency
 import com.ximalu.wmbridge.matrix.MatrixClient
+import com.ximalu.wmbridge.model.MessageEntry
 import com.ximalu.wmbridge.model.WeChatNotification
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
@@ -33,6 +35,7 @@ class NotificationListener : NotificationListenerService() {
     private lateinit var config: Config
     private lateinit var client: MatrixClient
     private lateinit var buffer: BatchBuffer
+    private lateinit var history: MessageHistory
     private var flushJob: Job? = null
 
     override fun onCreate() {
@@ -40,6 +43,7 @@ class NotificationListener : NotificationListenerService() {
         config = Config(this)
         client = MatrixClient(config)
         buffer = BatchBuffer()
+        history = MessageHistory(this)
         restartFlushTimer()
         Log.i(TAG, "NotificationListener started")
     }
@@ -64,6 +68,7 @@ class NotificationListener : NotificationListenerService() {
 
         scope.launch {
             val count = buffer.add(notification)
+            history.add(notification, MessageEntry.Status.PENDING)
             Log.d(TAG, "Buffered #$count: ${notification.sender}: ${notification.content}")
 
             // Get current send frequency
@@ -135,18 +140,26 @@ class NotificationListener : NotificationListenerService() {
         val batch = buffer.flush()
         if (batch.isEmpty()) return
 
+        val ids = batch.map { genId(it) }
         Log.i(TAG, "Flushing ${batch.size} notification(s) (reason=$reason)")
         val result = client.sendBatch(batch)
         result.fold(
             onSuccess = {
+                history.markSent(ids)
                 Log.i(TAG, "Batch sent (${batch.size} items)")
             },
             onFailure = { error ->
+                history.markFailed(ids)
                 Log.e(TAG, "Batch send failed: ${error.message}")
                 // Re-buffer on failure
                 batch.forEach { buffer.add(it) }
             }
         )
+    }
+
+    private fun genId(notification: WeChatNotification): String {
+        val raw = "${notification.timestamp}_${notification.sender}_${notification.content}_${notification.groupName}"
+        return raw.hashCode().toLong().toString(16)
     }
 
     // ── Parse WeChat notification ──

@@ -46,6 +46,9 @@ class MainActivity : AppCompatActivity() {
         updateStatus()
 
         binding.btnSave.setOnClickListener { saveConfig() }
+        binding.btnHistory.setOnClickListener {
+            startActivity(Intent(this, MessageHistoryActivity::class.java))
+        }
         binding.btnPermissions.setOnClickListener {
             startActivity(Intent(this, AuthorizationActivity::class.java))
         }
