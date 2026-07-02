@@ -37,6 +37,7 @@
 - **关键词帮助文字与按钮组间距不足**：`tvKeywordHelp` 的 `marginBottom` 20dp→24dp，`btnTest` 添加 `marginBottom=8dp`
 - **[根因] Android 15 edge-to-edge 未处理**：`targetSdk=35` 强制 edge-to-edge 渲染，但 `activity_main.xml` 和 `activity_authorization.xml` 缺少 `fitsSystemWindows="true"`，导致内容被状态栏和导航栏压缩，Layout 内所有 margin 实际可用空间远小于预期。添加 `fitsSystemWindows` 修复
 - **关键词输入框高度计算偏差**：`Android:minLines="2"` 设在 `TextInputEditText` 上会导致 `TextInputLayout` 的 filled box 高度计算偏差，视觉上侵占下方帮助文字空间。去掉 `minLines`，改为默认单行 + `gravity="top"`，同时增大 `marginBottom` 8dp→12dp
+- **[根治] 关键词帮助文字改用 Material 内置 helperText**：之前用独立 `TextView`（`tvKeywordHelp`）放在 TextInputLayout 下方，间距靠手动 margin 控制，不同设备上视觉表现不一致。按 Material Components 官方做法，改用 `app:helperText` + `app:helperTextEnabled` 将帮助文字置于 TextInputLayout 内部，由库自身控制布局和间距，彻底消除重叠可能
 
 ## v1.0.0-beta8
 

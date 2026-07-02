@@ -159,7 +159,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:hint="@string/label_keywords">
+            android:hint="@string/label_keywords"
+            app:helperText="@string/keyword_help"
+            app:helperTextEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etKeywords"
@@ -169,16 +171,6 @@
                 android:inputType="text"
                 android:gravity="top" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/tvKeywordHelp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/keyword_help"
-            android:textSize="12sp"
-            android:textColor="#888888"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="24dp" />
 
         <!-- 按钮组 -->
         <com.google.android.material.button.MaterialButton
