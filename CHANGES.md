@@ -32,6 +32,8 @@
 
 ### Bug 修复
 - **AuthorizationActivity 启动崩溃**：`item_permission.xml` 根元素是 CardView，但 `setupPermissionItems()` 中强转成了 `LinearLayout`，导致 `ClassCastException`。改为 `as View` 泛型转型，移除 `LinearLayout` 导入
+- **消息记录页重叠状态栏**：根布局缺少 `fitsSystemWindows="true"`，顶部操作栏与系统状态栏重叠
+- **关键词输入栏间距过小**：`tilKeywords` 的 `marginBottom=0dp` 与帮助文字的 `marginTop=2dp` 间距太小，多行时重叠。改为 `marginBottom=8dp`
 
 ## v1.0.0-beta8
 
