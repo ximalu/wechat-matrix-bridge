@@ -12,6 +12,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   WMB_KEYSTORE_PASS: ${{ secrets.WMB_KEYSTORE_PASS }}
   WMB_KEY_ALIAS: ${{ secrets.WMB_KEY_ALIAS }}
