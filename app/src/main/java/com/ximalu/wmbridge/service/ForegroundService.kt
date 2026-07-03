@@ -6,6 +6,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -15,6 +16,7 @@ import android.os.IBinder
 import android.view.Gravity
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.service.notification.NotificationListenerService
 import androidx.core.app.NotificationCompat
 import com.ximalu.wmbridge.MainActivity
 import com.ximalu.wmbridge.R
@@ -29,6 +31,12 @@ class ForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        // Force the system to bind our NotificationListener in the :bridge process.
+        // After an app update Android may delay re-binding; this ensures it happens immediately.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val cn = ComponentName(this, NotificationListener::class.java)
+            NotificationListenerService.requestRebind(cn)
+        }
         startServiceWithNotification()
         registerKeepAlive()
     }
