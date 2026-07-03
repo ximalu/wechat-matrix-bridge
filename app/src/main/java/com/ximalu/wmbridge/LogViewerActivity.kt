@@ -3,8 +3,12 @@ package com.ximalu.wmbridge
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,9 +16,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ximalu.wmbridge.service.BridgeProvider
+import java.io.File
 
 /**
  * 日志查看器。
@@ -41,7 +47,7 @@ class LogViewerActivity : AppCompatActivity() {
         adapter = LogAdapter()
         rvLogs.adapter = adapter
 
-        findViewById<View>(R.id.btnCopyLogs).setOnClickListener { copyLogs() }
+        findViewById<View>(R.id.btnShareLogs).setOnClickListener { shareLogs() }
         findViewById<View>(R.id.btnClearLogs).setOnClickListener { confirmClear() }
 
         refresh()
@@ -84,18 +90,32 @@ class LogViewerActivity : AppCompatActivity() {
         tvLogCount.text = "共 ${entries.size} 条日志"
     }
 
-    private fun copyLogs() {
+    private fun shareLogs() {
         val entries = adapter.items
         if (entries.isEmpty()) {
-            Toast.makeText(this, "没有日志可复制", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "没有日志可分享", Toast.LENGTH_SHORT).show()
             return
         }
         val text = entries.joinToString("\n") { e ->
             "[${e.time}] [${e.level}/${e.tag}] ${e.msg}"
         }
-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("WMBridge Logs", text))
-        Toast.makeText(this, "已复制 ${entries.size} 条日志", Toast.LENGTH_SHORT).show()
+
+        // Write to cache file
+        val logDir = File(cacheDir, "logs")
+        logDir.mkdirs()
+        val logFile = File(logDir, "wmbridge_logs_${System.currentTimeMillis()}.txt")
+        logFile.writeText(text)
+
+        // Share via FileProvider
+        val uri: Uri = FileProvider.getUriForFile(
+            this, "${packageName}.fileprovider", logFile
+        )
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(intent, "分享日志"))
     }
 
     private fun confirmClear() {
