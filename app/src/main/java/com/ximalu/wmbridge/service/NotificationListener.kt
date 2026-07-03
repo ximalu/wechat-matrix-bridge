@@ -6,6 +6,7 @@ import android.util.Log
 import com.ximalu.wmbridge.data.BatchBuffer
 import com.ximalu.wmbridge.data.Config
 import com.ximalu.wmbridge.data.KeywordMode
+import com.ximalu.wmbridge.data.MaxBatchSize
 import com.ximalu.wmbridge.data.MessageHistory
 import com.ximalu.wmbridge.data.SendFrequency
 import com.ximalu.wmbridge.matrix.MatrixClient
@@ -137,24 +138,43 @@ class NotificationListener : NotificationListenerService() {
     }
 
     private suspend fun flushBatch(reason: String) {
-        val batch = buffer.flush()
-        if (batch.isEmpty()) return
-
-        val ids = batch.map { genId(it) }
-        Log.i(TAG, "Flushing ${batch.size} notification(s) (reason=$reason)")
-        val result = client.sendBatch(batch)
-        result.fold(
-            onSuccess = {
-                history.markSent(ids)
-                Log.i(TAG, "Batch sent (${batch.size} items)")
-            },
-            onFailure = { error ->
-                history.markFailed(ids)
-                Log.e(TAG, "Batch send failed: ${error.message}")
-                // Re-buffer on failure
-                batch.forEach { buffer.add(it) }
+        // If Matrix not configured, just drain buffer silently
+        if (!config.isConfigured) {
+            val dropped = buffer.flushAll()
+            if (dropped.isNotEmpty()) {
+                Log.i(TAG, "Dropped ${dropped.size} notification(s) (Matrix not configured)")
             }
-        )
+            return
+        }
+
+        val maxSize = try {
+            MaxBatchSize.valueOf(config.maxBatchSize).size
+        } catch (_: Exception) { MaxBatchSize.SIZE_20.size }
+
+        var sentCount = 0
+        while (true) {
+            val batch = buffer.flush(maxSize)
+            if (batch.isEmpty()) break
+
+            val ids = batch.map { genId(it) }
+            Log.d(TAG, "Sending chunk of ${batch.size} (reason=$reason)")
+            val result = client.sendBatch(batch)
+            result.fold(
+                onSuccess = {
+                    history.markSent(ids)
+                    sentCount += batch.size
+                },
+                onFailure = { error ->
+                    history.markFailed(ids)
+                    Log.e(TAG, "Chunk send failed: ${error.message}")
+                    batch.forEach { buffer.add(it) }
+                    break
+                }
+            )
+        }
+        if (sentCount > 0) {
+            Log.i(TAG, "Flushed $sentCount notifications (reason=$reason)")
+        }
     }
 
     private fun genId(notification: WeChatNotification): String {

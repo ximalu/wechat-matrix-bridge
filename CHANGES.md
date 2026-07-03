@@ -9,6 +9,11 @@
 - **关键词输入框浮动标签与文字重叠**：Material Components TextInputLayout 在 FilledBox 模式下同时启用 FloatingLabel 和 `helperTextEnabled` 时，标签 Y 坐标计算偏差。改用静态标签 `TextView` 替代浮动标签
 - **关键词帮助文字布局**：独立 `TextView` 改为 Material 内置 `app:helperText`
 
+### 新增功能
+
+- **服务可无配置启动**：未填写 Matrix 配置也可启动服务，仅收集微信通知并记录到消息历史，发送时静默跳过。配置填写完整后自动恢复发送
+- **单条 Matrix 消息上限**：新增「单条消息上限」设置（10条/20条/30条），超出上限的微信通知会拆分为多条 Matrix 消息发送，防止单条消息数据量过大
+
 ## v1.0.0-beta9
 
 ### 新增功能

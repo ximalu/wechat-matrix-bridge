@@ -29,6 +29,8 @@
     <string name="section_forward">转发设置</string>
     <string name="label_frequency">发送频率</string>
     <string name="label_show_notification">常驻通知栏</string>
+    <string name="section_batch_limit">单条消息上限</string>
+    <string name="label_max_batch">每条 Matrix 消息最多包含</string>
 
     <!-- Layout: Keyword Filter -->
     <string name="section_keyword">关键词过滤</string>

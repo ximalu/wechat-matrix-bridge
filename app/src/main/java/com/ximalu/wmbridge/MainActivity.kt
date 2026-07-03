@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.ximalu.wmbridge.data.Config
 import com.ximalu.wmbridge.data.KeywordMode
+import com.ximalu.wmbridge.data.MaxBatchSize
 import com.ximalu.wmbridge.data.SendFrequency
 import com.ximalu.wmbridge.databinding.ActivityMainBinding
 import com.ximalu.wmbridge.matrix.MatrixClient
@@ -42,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         // Setup dropdown pickers
         setupFrequencyPicker()
         setupKeywordModePicker()
+        setupMaxBatchSizePicker()
         loadConfig()
         updateStatus()
 
@@ -104,6 +106,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // ── Max batch size dropdown ──
+
+    private fun setupMaxBatchSizePicker() {
+        val items = MaxBatchSize.entries.map { it.label }.toTypedArray()
+        binding.etMaxBatch.setOnClickListener {
+            val current = try {
+                MaxBatchSize.valueOf(config.maxBatchSize).ordinal
+            } catch (_: Exception) { 1 } // default SIZE_20
+            showPickerDialog(
+                items, current,
+                "单条消息上限"
+            ) { pos ->
+                val size = MaxBatchSize.entries[pos]
+                config.maxBatchSize = size.name
+                binding.etMaxBatch.setText(size.label)
+            }
+        }
+    }
+
     private fun showPickerDialog(
         items: Array<String>, selected: Int, title: String,
         onSelect: (Int) -> Unit
@@ -142,6 +163,10 @@ class MainActivity : AppCompatActivity() {
         } catch (_: Exception) { KeywordMode.OFF }
         binding.etKeywordMode.setText(kwMode.label)
         binding.etKeywords.setText(config.keywords)
+        val maxBatch = try {
+            MaxBatchSize.valueOf(config.maxBatchSize)
+        } catch (_: Exception) { MaxBatchSize.SIZE_20 }
+        binding.etMaxBatch.setText(maxBatch.label)
     }
 
     private fun saveConfig() {
@@ -161,13 +186,7 @@ class MainActivity : AppCompatActivity() {
             stopService(Intent(this, ForegroundService::class.java))
             Toast.makeText(this, R.string.service_stopped, Toast.LENGTH_SHORT).show()
         } else {
-            if (!config.isConfigured) {
-                saveConfig()
-            }
-            if (!config.isConfigured) {
-                Toast.makeText(this, "请先填写 Matrix 配置", Toast.LENGTH_SHORT).show()
-                return
-            }
+            saveConfig()
             config.serviceEnabled = true
             ForegroundService.start(this)
             Toast.makeText(this, R.string.service_started, Toast.LENGTH_SHORT).show()

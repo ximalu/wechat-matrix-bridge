@@ -18,6 +18,12 @@ enum class KeywordMode(val label: String) {
     EXCLUDE("排除关键词")
 }
 
+enum class MaxBatchSize(val label: String, val size: Int) {
+    SIZE_10("10 条", 10),
+    SIZE_20("20 条", 20),
+    SIZE_30("30 条", 30)
+}
+
 class Config(context: Context) {
 
     private val prefs: SharedPreferences =
@@ -58,6 +64,10 @@ class Config(context: Context) {
         get() = prefs.getString(KEY_KW_LIST, "") ?: ""
         set(value) = prefs.edit().putString(KEY_KW_LIST, value).apply()
 
+    var maxBatchSize: String
+        get() = prefs.getString(KEY_MAX_BATCH, MaxBatchSize.SIZE_20.name) ?: MaxBatchSize.SIZE_20.name
+        set(value) = prefs.edit().putString(KEY_MAX_BATCH, value).apply()
+
     // ── Keep-alive settings ──
 
     /** 通知栏前台保活 */
@@ -90,6 +100,7 @@ class Config(context: Context) {
         private const val KEY_SHOW_NOTIF = "show_persistent_notification"
         private const val KEY_KW_MODE = "keyword_mode"
         private const val KEY_KW_LIST = "keywords"
+        private const val KEY_MAX_BATCH = "max_batch_size"
         private const val KEY_KA_NOTIF = "keep_alive_notification"
         private const val KEY_KA_OVERLAY = "keep_alive_overlay"
         private const val KEY_DEVICE_ADMIN = "device_admin_activated"

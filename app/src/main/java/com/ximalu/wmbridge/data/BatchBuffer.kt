@@ -14,7 +14,16 @@ class BatchBuffer {
         buffer.size
     }
 
-    suspend fun flush(): List<WeChatNotification> = mutex.withLock {
+    /** Flush up to [maxSize] items; remaining stay in buffer. */
+    suspend fun flush(maxSize: Int = Int.MAX_VALUE): List<WeChatNotification> = mutex.withLock {
+        val count = minOf(maxSize, buffer.size)
+        val batch = buffer.take(count)
+        buffer.subList(0, count).clear()
+        batch
+    }
+
+    /** Flush all items. */
+    suspend fun flushAll(): List<WeChatNotification> = mutex.withLock {
         val batch = buffer.toList()
         buffer.clear()
         batch
