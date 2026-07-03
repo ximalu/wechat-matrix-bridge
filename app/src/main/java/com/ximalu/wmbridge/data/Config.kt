@@ -68,6 +68,12 @@ class Config(context: Context) {
         get() = prefs.getString(KEY_MAX_BATCH, MaxBatchSize.SIZE_20.name) ?: MaxBatchSize.SIZE_20.name
         set(value) = prefs.edit().putString(KEY_MAX_BATCH, value).apply()
 
+    // ── Debug settings ──
+
+    var debugLoggingEnabled: Boolean
+        get() = prefs.getBoolean(KEY_DEBUG_LOG, false)
+        set(value) = prefs.edit().putBoolean(KEY_DEBUG_LOG, value).apply()
+
     // ── Keep-alive settings ──
 
     /** 通知栏前台保活 */
@@ -104,6 +110,7 @@ class Config(context: Context) {
         private const val KEY_KA_NOTIF = "keep_alive_notification"
         private const val KEY_KA_OVERLAY = "keep_alive_overlay"
         private const val KEY_DEVICE_ADMIN = "device_admin_activated"
+        private const val KEY_DEBUG_LOG = "debug_logging"
         private const val DEFAULT_HOMESERVER = "https://mozilla.modular.im"
     }
 }

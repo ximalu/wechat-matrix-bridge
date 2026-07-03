@@ -58,4 +58,9 @@
     <string name="test_sending">正在发送测试消息…</string>
     <string name="test_sent">测试消息已发送 ✓</string>
     <string name="test_failed">发送失败：</string>
+
+    <!-- Debug -->
+    <string name="section_debug">🔧 调试工具</string>
+    <string name="label_debug_log">开启详细日志</string>
+    <string name="btn_show_logs">📄 显示运行日志</string>
 </resources>

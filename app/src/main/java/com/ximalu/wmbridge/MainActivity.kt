@@ -56,6 +56,16 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnToggleService.setOnClickListener { toggleService() }
         binding.btnTest.setOnClickListener { sendTest() }
+
+        // ── Debug ──
+        binding.swDebugLog.isChecked = config.debugLoggingEnabled
+        binding.swDebugLog.setOnCheckedChangeListener { _, isChecked ->
+            config.debugLoggingEnabled = isChecked
+            Toast.makeText(this, if (isChecked) "详细日志已开启" else "详细日志已关闭", Toast.LENGTH_SHORT).show()
+        }
+        binding.btnShowLogs.setOnClickListener {
+            startActivity(Intent(this, LogViewerActivity::class.java))
+        }
     }
 
     override fun onDestroy() {

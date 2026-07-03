@@ -247,5 +247,33 @@
             android:textColor="?attr/colorPrimary"
             android:layout_marginBottom="8dp" />
 
+        <!-- ===== 调试工具 ===== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/section_debug"
+            android:textSize="13sp"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swDebugLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/label_debug_log"
+            android:checked="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnShowLogs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:text="@string/btn_show_logs"
+            android:textColor="#FF9800" />
+
     </LinearLayout>
 </ScrollView>

@@ -6,6 +6,7 @@ import android.util.Log
 import com.ximalu.wmbridge.data.BatchBuffer
 import com.ximalu.wmbridge.data.Config
 import com.ximalu.wmbridge.data.KeywordMode
+import com.ximalu.wmbridge.data.LogBuffer
 import com.ximalu.wmbridge.data.MaxBatchSize
 import com.ximalu.wmbridge.data.MessageHistory
 import com.ximalu.wmbridge.data.SendFrequency
@@ -14,6 +15,7 @@ import com.ximalu.wmbridge.model.MessageEntry
 import com.ximalu.wmbridge.model.WeChatNotification
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 class NotificationListener : NotificationListenerService() {
@@ -37,7 +39,10 @@ class NotificationListener : NotificationListenerService() {
     private lateinit var client: MatrixClient
     private lateinit var buffer: BatchBuffer
     private lateinit var history: MessageHistory
+    private lateinit var logger: LogBuffer
     private var flushJob: Job? = null
+
+    private val timeFormat = SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault())
 
     override fun onCreate() {
         super.onCreate()
@@ -45,32 +50,64 @@ class NotificationListener : NotificationListenerService() {
         client = MatrixClient(config)
         buffer = BatchBuffer()
         history = MessageHistory(this)
+        logger = LogBuffer.getInstance()
+
+        logger.add("INFO", TAG, "NotificationListener onCreate — pid=${android.os.Process.myPid()}")
+        logger.add("INFO", TAG, "NLS enabled check: ${isNlsEnabled()}")
+        logConfigSnapshot("onCreate")
+
         restartFlushTimer()
         Log.i(TAG, "NotificationListener started")
     }
 
     override fun onDestroy() {
+        logger.add("INFO", TAG, "NotificationListener onDestroy")
         flushJob?.cancel()
         scope.cancel()
         super.onDestroy()
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (sbn.packageName != WECHAT_PACKAGE) return
-        if (!config.serviceEnabled) return
+        val ts = timeFormat.format(Date(sbn.postTime))
+        val key = "${sbn.packageName}:${sbn.id}"
 
-        val notification = parseWeChatNotification(sbn) ?: return
+        logger.add("DEBUG", TAG, "onNotificationPosted — pkg=${sbn.packageName} id=${sbn.id} key=$key ts=$ts")
 
-        // Keyword filtering
-        if (!matchesKeywords(notification)) {
-            Log.d(TAG, "Filtered by keyword: ${notification.sender}: ${notification.content}")
+        // Step 1: Package check
+        if (sbn.packageName != WECHAT_PACKAGE) {
+            logger.add("DEBUG", TAG, "→ SKIP: not WeChat (${sbn.packageName})")
+            return
+        }
+        logger.add("INFO", TAG, "→ WeChat notification received (key=$key)")
+
+        // Step 2: Service enabled check
+        val enabled = config.serviceEnabled
+        logger.add("DEBUG", TAG, "→ serviceEnabled=$enabled")
+        if (!enabled) {
+            logger.add("WARN", TAG, "→ DROP: service not enabled (key=$key)")
             return
         }
 
+        // Step 3: Parse notification
+        val notification = parseWeChatNotification(sbn)
+        if (notification == null) {
+            logger.add("WARN", TAG, "→ DROP: parseWeChatNotification returned null (key=$key)")
+            logNotificationExtras(sbn)
+            return
+        }
+        logger.add("INFO", TAG, "→ Parsed: sender=${notification.sender} content=${truncate(notification.content)} group=${notification.groupName ?: "(none)"}")
+
+        // Step 4: Keyword filtering
+        if (!matchesKeywords(notification)) {
+            logger.add("DEBUG", TAG, "→ SKIP: filtered by keyword (sender=${notification.sender})")
+            return
+        }
+
+        // Step 5: Buffer and persist
         scope.launch {
             val count = buffer.add(notification)
             history.add(notification, MessageEntry.Status.PENDING)
-            Log.d(TAG, "Buffered #$count: ${notification.sender}: ${notification.content}")
+            logger.add("INFO", TAG, "→ Buffered #$count: ${notification.sender}: ${truncate(notification.content)}")
 
             // Get current send frequency
             val freq = try {
@@ -79,6 +116,7 @@ class NotificationListener : NotificationListenerService() {
 
             // PER_MESSAGE: flush immediately
             if (freq == SendFrequency.PER_MESSAGE) {
+                logger.add("DEBUG", TAG, "→ PER_MESSAGE mode, flushing immediately")
                 flushBatch("per_message")
             }
         }
@@ -113,7 +151,9 @@ class NotificationListener : NotificationListenerService() {
         }
 
         val matchesAny = kwList.any { text.contains(it) }
-        return if (mode == KeywordMode.INCLUDE) matchesAny else !matchesAny
+        val result = if (mode == KeywordMode.INCLUDE) matchesAny else !matchesAny
+        logger.add("DEBUG", TAG, "→ Keyword filter: mode=${mode.name} text=\"${truncate(text)}\" result=$result")
+        return result
     }
 
     // ── Flush timer ──
@@ -124,8 +164,10 @@ class NotificationListener : NotificationListenerService() {
             SendFrequency.valueOf(config.sendFrequency)
         } catch (_: Exception) { SendFrequency.MIN_10 }
 
-        // PER_MESSAGE doesn't need a timer — flush happens on each notification
-        if (freq == SendFrequency.PER_MESSAGE) return
+        if (freq == SendFrequency.PER_MESSAGE) {
+            logger.add("DEBUG", TAG, "→ PER_MESSAGE mode, no flush timer needed")
+            return
+        }
 
         val intervalMs = freq.millis ?: SendFrequency.MIN_10.millis!!
         flushJob = scope.launch {
@@ -134,14 +176,15 @@ class NotificationListener : NotificationListenerService() {
                 flushBatch("interval")
             }
         }
+        logger.add("INFO", TAG, "→ Flush timer set to ${freq.label} (${intervalMs}ms)")
         Log.i(TAG, "Flush timer set to ${freq.label} (${intervalMs}ms)")
     }
 
     private suspend fun flushBatch(reason: String) {
-        // If Matrix not configured, just drain buffer silently
         if (!config.isConfigured) {
             val dropped = buffer.flushAll()
             if (dropped.isNotEmpty()) {
+                logger.add("INFO", TAG, "→ Flush ($reason): dropped ${dropped.size} notification(s) (Matrix not configured)")
                 Log.i(TAG, "Dropped ${dropped.size} notification(s) (Matrix not configured)")
             }
             return
@@ -158,15 +201,17 @@ class NotificationListener : NotificationListenerService() {
             if (batch.isEmpty()) break
 
             val ids = batch.map { genId(it) }
-            Log.d(TAG, "Sending chunk of ${batch.size} (reason=$reason)")
+            logger.add("DEBUG", TAG, "→ Sending chunk of ${batch.size} (reason=$reason)")
             val result = client.sendBatch(batch)
             result.fold(
                 onSuccess = {
                     history.markSent(ids)
                     sentCount += batch.size
+                    logger.add("INFO", TAG, "→ Chunk sent OK (${batch.size} items)")
                 },
                 onFailure = { error ->
                     history.markFailed(ids)
+                    logger.add("ERROR", TAG, "→ Chunk send FAILED: ${error.message}")
                     Log.e(TAG, "Chunk send failed: ${error.message}")
                     batch.forEach { buffer.add(it) }
                     shouldStop = true
@@ -174,6 +219,7 @@ class NotificationListener : NotificationListenerService() {
             )
         }
         if (sentCount > 0) {
+            logger.add("INFO", TAG, "→ Flush complete: $sentCount notifications (reason=$reason)")
             Log.i(TAG, "Flushed $sentCount notifications (reason=$reason)")
         }
     }
@@ -186,13 +232,27 @@ class NotificationListener : NotificationListenerService() {
     // ── Parse WeChat notification ──
 
     private fun parseWeChatNotification(sbn: StatusBarNotification): WeChatNotification? {
-        val extras = sbn.notification.extras ?: return null
+        val extras = sbn.notification.extras ?: run {
+            logger.add("WARN", TAG, "→ parse: extras is null")
+            return null
+        }
 
-        val title = extras.getString(EXTRA_TITLE) ?: return null
+        val title = extras.getString(EXTRA_TITLE)
         val text = extras.getString(EXTRA_TEXT)
             ?: extras.getString(EXTRA_SUB_TEXT)
-            ?: return null
         val conversationTitle = extras.getString(EXTRA_CONVERSATION_TITLE)
+
+        logger.add("DEBUG", TAG, "→ parse: title=$title text=$text conversationTitle=$conversationTitle")
+        logger.add("DEBUG", TAG, "→ parse: category=${sbn.notification.category}")
+
+        if (title == null) {
+            logger.add("WARN", TAG, "→ parse FAILED: title is null")
+            return null
+        }
+        if (text == null) {
+            logger.add("WARN", TAG, "→ parse FAILED: text is null")
+            return null
+        }
 
         val isGroup = sbn.notification.category == CATEGORY_GROUP
                 || conversationTitle != null
@@ -217,11 +277,56 @@ class NotificationListener : NotificationListenerService() {
             groupName = null
         }
 
+        logger.add("DEBUG", TAG, "→ parse OK: sender=$sender content=${truncate(content)} isGroup=$isGroup")
         return WeChatNotification(
             sender = sender.trim(),
             content = content.trim(),
             groupName = groupName?.trim(),
             timestamp = sbn.postTime
         )
+    }
+
+    // ── Diagnostics ──
+
+    private fun logNotificationExtras(sbn: StatusBarNotification) {
+        val extras = sbn.notification.extras ?: return
+        val keys = extras.keySet().joinToString(", ")
+        logger.add("WARN", TAG, "→ extras keys: $keys")
+        for (key in listOf(EXTRA_TITLE, EXTRA_TEXT, EXTRA_SUB_TEXT, EXTRA_CONVERSATION_TITLE)) {
+            val value = extras.getString(key)
+            logger.add("DEBUG", TAG, "  $key = $value")
+        }
+        logger.add("DEBUG", TAG, "  category = ${sbn.notification.category}")
+        logger.add("DEBUG", TAG, "  group = ${sbn.notification.group}")
+    }
+
+    private fun logConfigSnapshot(source: String) {
+        logger.add("DEBUG", TAG, "Config snapshot ($source):")
+        logger.add("DEBUG", TAG, "  serviceEnabled=${config.serviceEnabled}")
+        logger.add("DEBUG", TAG, "  isConfigured=${config.isConfigured}")
+        logger.add("DEBUG", TAG, "  sendFrequency=${config.sendFrequency}")
+        logger.add("DEBUG", TAG, "  keywordMode=${config.keywordMode}")
+        logger.add("DEBUG", TAG, "  keywords=\"${config.keywords}\"")
+        logger.add("DEBUG", TAG, "  maxBatchSize=${config.maxBatchSize}")
+        logger.add("DEBUG", TAG, "  showPersistentNotification=${config.showPersistentNotification}")
+    }
+
+    private fun isNlsEnabled(): Boolean {
+        val flat = android.provider.Settings.Secure.getString(
+            contentResolver,
+            "enabled_notification_listeners"
+        ) ?: return false
+        return flat.split(":").any { name ->
+            val cn = android.content.ComponentName.unflattenFromString(name)
+            cn != null && packageName == cn.packageName
+        }
+    }
+
+    private fun truncate(s: String, maxLen: Int = 80): String {
+        return if (s.length <= maxLen) s else s.take(maxLen) + "..."
+    }
+
+    private fun logNow(level: String, tag: String, msg: String) {
+        logger.add(level, tag, msg)
     }
 }
