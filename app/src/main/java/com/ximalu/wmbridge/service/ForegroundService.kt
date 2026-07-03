@@ -6,7 +6,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -16,7 +15,6 @@ import android.os.IBinder
 import android.view.Gravity
 import android.view.WindowManager
 import android.widget.FrameLayout
-import android.service.notification.NotificationListenerService
 import androidx.core.app.NotificationCompat
 import com.ximalu.wmbridge.MainActivity
 import com.ximalu.wmbridge.R
@@ -31,12 +29,10 @@ class ForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        // Force the system to bind our NotificationListener in the :bridge process.
-        // After an app update Android may delay re-binding; this ensures it happens immediately.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val cn = ComponentName(this, NotificationListener::class.java)
-            NotificationListenerService.requestRebind(cn)
-        }
+        // The system often delays or skips rebinding NotificationListener after app updates.
+        // Toggling component state (disable → enable) forces the system to re-evaluate
+        // and bind immediately. This is more reliable than requestRebind() alone.
+        NotificationListener.forceRebind(this)
         startServiceWithNotification()
         registerKeepAlive()
     }
@@ -180,6 +176,11 @@ class ForegroundService : Service() {
         fun start(context: Context) {
             val intent = Intent(context, ForegroundService::class.java)
             context.startForegroundService(intent)
+            // Also explicitly start the NotificationListener so the system binds it.
+            // Without this, onListenerConnected may never fire after an app update.
+            try {
+                context.startService(Intent(context, NotificationListener::class.java))
+            } catch (_: Exception) {}
         }
 
         fun restartNotification(context: Context) {

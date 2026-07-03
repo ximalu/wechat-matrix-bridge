@@ -1,5 +1,20 @@
 # WMBridge 修改记录
 
+## v1.4.0 (2026-07-03)
+**修复：NotificationListener 启动后系统未绑定，日志为空**
+
+### Bug 修复
+- 点击"启动服务"后系统延迟或不绑定 NotificationListener，导致 `onCreate()` 从未被调用
+- 根因：App 更新后 system_server 缓存的组件绑定失效，不会自动重绑
+
+### 修改
+- `NotificationListener.forceRebind()` — 通过 `setComponentEnabledSetting(DISABLE → ENABLE)` 强制系统重新评估绑定（来自 OTP Helper 的成熟做法）
+- `NotificationListener.onStartCommand()` — 重写并返回 `START_STICKY`，保持服务存活
+- `NotificationListener.onListenerConnected()` — 新增日志，确认绑定成功
+- `NotificationListener.onListenerDisconnected()` — 断连后自动 `requestRebind()` + `forceRebind()` 双重保险
+- `ForegroundService.onCreate()` — 用 `forceRebind()` 替换 `requestRebind()`
+- `ForegroundService.start()` — 新增显式 `startService(NotificationListener)` 确保系统绑定
+
 ## v1.3.1 (2026-07-03)
 **修复：启动服务后通知监听器未绑定**
 

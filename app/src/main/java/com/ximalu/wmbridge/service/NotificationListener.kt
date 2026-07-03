@@ -1,5 +1,10 @@
 package com.ximalu.wmbridge.service
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -32,6 +37,19 @@ class NotificationListener : NotificationListenerService() {
 
         private const val CATEGORY_GROUP = "msg_group"
         private const val CATEGORY_SINGLE = "msg_single"
+
+        /** Force system to rebind this listener by toggling component state. */
+        fun forceRebind(context: Context) {
+            val cn = ComponentName(context, NotificationListener::class.java)
+            context.packageManager.setComponentEnabledSetting(
+                cn, PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+            )
+            context.packageManager.setComponentEnabledSetting(
+                cn, PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP
+            )
+        }
     }
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -58,6 +76,30 @@ class NotificationListener : NotificationListenerService() {
 
         restartFlushTimer()
         Log.i(TAG, "NotificationListener started")
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        logger.add("INFO", TAG, "onStartCommand — action=${intent?.action} flags=$flags startId=$startId")
+        return START_STICKY
+    }
+
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+        logger.add("INFO", TAG, "onListenerConnected — listener is now active")
+        Log.i(TAG, "NotificationListener connected")
+    }
+
+    override fun onListenerDisconnected() {
+        super.onListenerDisconnected()
+        logger.add("WARN", TAG, "onListenerDisconnected — attempting rebind")
+        Log.w(TAG, "NotificationListener disconnected, requesting rebind")
+        // Rebind using component toggle (more reliable than requestRebind alone)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                requestRebind(ComponentName(this, NotificationListener::class.java))
+            } catch (_: Exception) {}
+        }
+        forceRebind(this)
     }
 
     override fun onDestroy() {
