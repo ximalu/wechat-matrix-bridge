@@ -1,6 +1,23 @@
 # WMBridge 修改记录
 
-## v1.1.0
+## v1.3.0 (2026-07-03)
+**新增：跨进程日志调试系统**
+
+### 改动明细
+
+| 文件 | 操作 | 说明 |
+|------|------|------|
+| `LogBuffer.kt` | 新增 | 线程安全环形日志缓冲区（500条），运行在 `:bridge` 进程 |
+| `LogViewerActivity.kt` | 新增 | 日志查看器 UI，支持复制全部到剪贴板 |
+| `activity_log_viewer.xml` | 新增 | 日志查看器布局 |
+| `BridgeProvider.kt` | 修改 | 新增 `/logs` 、 `/history` IPC 端点支持跨进程读取 |
+| `NotificationListener.kt` | 修改 | 每个管道步骤打日志（收到→包名→解析→关键词→缓存） |
+| `MainActivity.kt` | 修改 | 新增「调试工具」区域（开启详细日志开关 + 日志查看器按钮） |
+| `activity_main.xml` | 修改 | 新增调试工具 UI 区域 |
+| `Config.kt` | 修改 | 新增 `debugLoggingEnabled` 配置项 |
+| `AndroidManifest.xml` | 修改 | 注册 `LogViewerActivity` |
+
+## v1.2.0 (2026-07-03)
 
 ### Bug 修复
 
