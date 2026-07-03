@@ -152,7 +152,8 @@ class NotificationListener : NotificationListenerService() {
         } catch (_: Exception) { MaxBatchSize.SIZE_20.size }
 
         var sentCount = 0
-        while (true) {
+        var shouldStop = false
+        while (!shouldStop) {
             val batch = buffer.flush(maxSize)
             if (batch.isEmpty()) break
 
@@ -168,7 +169,7 @@ class NotificationListener : NotificationListenerService() {
                     history.markFailed(ids)
                     Log.e(TAG, "Chunk send failed: ${error.message}")
                     batch.forEach { buffer.add(it) }
-                    break
+                    shouldStop = true
                 }
             )
         }
